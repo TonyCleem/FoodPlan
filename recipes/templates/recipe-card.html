@@ -8,7 +8,7 @@
         rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
         crossorigin="anonymous">
-  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <title>{{ recipe.name }} – FoodPlan</title>
 </head>
 <body>
@@ -20,14 +20,16 @@
                width="189" alt="FoodPlan">
         </a>
         {% if user.is_authenticated %}
-          <a href="{% url 'recipes:lk' %}"
-             class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green me-2">
-            Личный кабинет
-          </a>
-          <a href="{% url 'recipes:logout' %}"
-             class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
-            Выйти
-          </a>
+          <div class="nav-buttons">
+            <a href="{% url 'recipes:lk' %}"
+               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+              Личный кабинет
+            </a>
+            <a href="{% url 'recipes:logout' %}"
+               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+              Выйти
+            </a>
+          </div>
         {% else %}
           <a href="{% url 'recipes:login' %}"
              class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
