@@ -18,4 +18,8 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('logout/', views.user_logout, name='logout'),
     path('lk/', views.lk, name='lk'),
+    path('refresh-breakfast/', views.refresh_breakfast, name='refresh_breakfast'),
+    path('refresh-lunch/', views.refresh_lunch, name='refresh_lunch'),
+    path('refresh-dinner/', views.refresh_dinner, name='refresh_dinner'),
+
 ]
