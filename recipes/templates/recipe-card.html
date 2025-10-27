@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>{{ recipe.name }} – FoodPlan</title>
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-light fixed-top navbar__opacity">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'recipes:index' %}">
+          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55"
+               width="189" alt="FoodPlan">
+        </a>
+        {% if user.is_authenticated %}
+          <div class="nav-buttons">
+            <a href="{% url 'recipes:lk' %}"
+               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+              Личный кабинет
+            </a>
+            <a href="{% url 'recipes:logout' %}"
+               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+              Выйти
+            </a>
+          </div>
+        {% else %}
+          <a href="{% url 'recipes:login' %}"
+             class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+            Войти
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+  <main style="margin-top: calc(2rem + 85px);">
+    <section class="py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-5 text-center">
+            <img src="{{ recipe.image.url|default:'/static/img/circle1.png' }}"
+                 class="img-fluid rounded shadow-lg" alt="{{ recipe.name }}"
+                 style="max-height: 400px; object-fit: cover;">
+          </div>
+          <div class="col-md-7">
+            <h1 class="mb-4">{{ recipe.name }}</h1>
+            <div class="row mb-4">
+              <div class="col-6">
+                <h5 class="text-primary">Калорийность</h5>
+                <p class="fs-4 fw-bold">{{ recipe.calories }} ккал</p>
+              </div>
+              <div class="col-6">
+                <h5 class="text-success">Стоимость</h5>
+                <p class="fs-4 fw-bold">{{ recipe.total_cost }} ₽</p>
+              </div>
+            </div>
+            <h5>Тип блюда</h5>
+            <p class="mb-3">{{ recipe.get_dish_type_display }}</p>
+            <h5>Особенности</h5>
+            <p class="mb-4">
+              {% if recipe.is_vegetarian %}Вегетарианское{% endif %}
+              {% if recipe.no_gluten %} • Без глютена{% endif %}
+            </p>
+            <h5>Ингредиенты</h5>
+            <ul class="list-group list-group-flush mb-4">
+              {% for ing in recipe.ingredients.all %}
+                <li class="list-group-item d-flex justify-content-between">
+                  <span>{{ ing.name }} ({{ ing.weight }} г)</span>
+                  <span class="text-success fw-bold">{{ ing.cost }} ₽</span>
+                </li>
+              {% endfor %}
+            </ul>
+            <a href="{% url 'recipes:lk' %}" class="btn btn-outline-secondary">
+              Назад в личный кабинет
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer py-4 mt-5" style="border-top: 1px solid lightgray;">
+    <div class="container d-flex flex-row justify-content-between mb-2">
+      <a href="https://vk.com/devmanorg">
+        <img src="{% static 'img/vk.png' %}" height="40" width="auto" alt="VK">
+      </a>
+      <div>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
+          <b>Виды меню</b>
+        </a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
+          <b>Блог</b>
+        </a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
+          <b>Контакты</b>
+        </a>
+      </div>
+    </div>
+    <div class="container">
+      <h6 class="link-secondary text-center">
+        <a href="#" class="link-secondary me-2">Политика конфиденциальности</a>
+        <a href="#" class="link-secondary">Пользовательское соглашение</a>
+      </h6>
+      <h6 class="link-secondary text-center">© Devman 2022. All right reserved.</h6>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+          crossorigin="anonymous"></script>
+</body>
+</html>
