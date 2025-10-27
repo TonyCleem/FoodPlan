@@ -32,7 +32,7 @@ def _apply_filters(recipes, filters):
 def index(request):
   return render(request, 'index.html')
 
-@login_required
+
 def recipe_details(request, recipe_id=None):
   if request.user.is_authenticated:
     try:
