@@ -66,10 +66,17 @@ class UserProfileAdmin(admin.ModelAdmin):
         'dinner_status_display',
         'last_refresh_date_display'
     )
-    filter_horizontal = ('liked_recipes',)
+    filter_horizontal = ('liked_recipes', 'disliked_recipes')
     search_fields = ('user__username', 'user__email', 'allergies')
     list_filter = ('user__is_active',)
-    actions = ['reset_all_limits']
+    actions = [
+        'reset_all_limits',
+        'reset_breakfast_limits',
+        'reset_lunch_limits',
+        'reset_dinner_limits',
+        'clear_disliked_recipes',
+        'clear_liked_recipes'
+    ]
     readonly_fields = ('last_refresh_date', 'breakfast_blocked_until', 'lunch_blocked_until', 'dinner_blocked_until')
 
     def liked_recipes_count(self, obj):
@@ -116,9 +123,51 @@ class UserProfileAdmin(admin.ModelAdmin):
             profile.breakfast_blocked_until = None
             profile.lunch_blocked_until = None
             profile.dinner_blocked_until = None
+            profile.last_refresh_date = timezone.now()
             profile.save()
         self.message_user(request, "Все лимиты сброшены")
     reset_all_limits.short_description = "Сбросить все лимиты"
+
+    def reset_breakfast_limits(self, request, queryset):
+        for profile in queryset:
+            profile.breakfast_refresh_count = 0
+            profile.breakfast_blocked_until = None
+            profile.last_refresh_date = timezone.now()
+            profile.save()
+        self.message_user(request, "Лимиты завтрака сброшены")
+    reset_breakfast_limits.short_description = "Сбросить лимиты завтрака"
+
+    def reset_lunch_limits(self, request, queryset):
+        for profile in queryset:
+            profile.lunch_refresh_count = 0
+            profile.lunch_blocked_until = None
+            profile.last_refresh_date = timezone.now()
+            profile.save()
+        self.message_user(request, "Лимиты обеда сброшены")
+    reset_lunch_limits.short_description = "Сбросить лимиты обеда"
+
+    def reset_dinner_limits(self, request, queryset):
+        for profile in queryset:
+            profile.dinner_refresh_count = 0
+            profile.dinner_blocked_until = None
+            profile.last_refresh_date = timezone.now()
+            profile.save()
+        self.message_user(request, "Лимиты ужина сброшены")
+    reset_dinner_limits.short_description = "Сбросить лимиты ужина"
+
+    def clear_disliked_recipes(self, request, queryset):
+        for profile in queryset:
+            profile.disliked_recipes.clear()
+            profile.save()
+        self.message_user(request, "Дизлайкнутые рецепты очищены")
+    clear_disliked_recipes.short_description = "Очистить дизлайкнутые рецепты"
+
+    def clear_liked_recipes(self, request, queryset):
+        for profile in queryset:
+            profile.liked_recipes.clear()
+            profile.save()
+        self.message_user(request, "Лайкнутые рецепты очищены")
+    clear_liked_recipes.short_description = "Очистить лайкнутые рецепты"
 
     fieldsets = (
         ('Основная информация', {
