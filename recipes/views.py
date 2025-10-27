@@ -34,110 +34,93 @@ def index(request):
 
 @login_required
 def recipe_details(request, recipe_id=None):
-    if request.user.is_authenticated:
+  if request.user.is_authenticated:
+    try:
+      profile = UserProfile.objects.get(user=request.user)
+      filters = profile.filters
+      profile.reset_refresh_counts()
+    except UserProfile.DoesNotExist:
+      filters = {}
+  else:
+    filters = request.session.get('recipe_filters', {})
+
+  selected_meal_types = filters.get('meal_types', [])
+
+  breakfast_recipe = None
+  lunch_recipe = None
+  dinner_recipe = None
+
+  show_all = not selected_meal_types
+
+  user_liked_ids = []
+  user_disliked_ids = []
+  can_refresh_breakfast = True
+  can_refresh_lunch = True
+  can_refresh_dinner = True
+  remaining_breakfast = 3
+  remaining_lunch = 3
+  remaining_dinner = 3
+
+  if request.user.is_authenticated:
+    try:
+      profile = UserProfile.objects.get(user=request.user)
+      user_liked_ids = list(profile.liked_recipes.values_list('id', flat=True))
+      user_disliked_ids = list(profile.disliked_recipes.values_list('id', flat=True))
+      can_refresh_breakfast = profile.can_refresh_breakfast()
+      can_refresh_lunch = profile.can_refresh_lunch()
+      can_refresh_dinner = profile.can_refresh_dinner()
+      remaining_breakfast = 3 - profile.breakfast_refresh_count
+      remaining_lunch = 3 - profile.lunch_refresh_count
+      remaining_dinner = 3 - profile.dinner_refresh_count
+    except UserProfile.DoesNotExist:
+      pass
+
+
+  if show_all or 'breakfast' in selected_meal_types:
+    breakfast_id = request.session.get('breakfast_recipe_id')
+    if breakfast_id:
       try:
-        profile = UserProfile.objects.get(user=request.user)
-        filters = profile.filters
-        profile.reset_refresh_counts()
-      except UserProfile.DoesNotExist:
-        filters = {}
-    else:
-      filters = request.session.get('recipe_filters', {})
-
-    selected_meal_types = filters.get('meal_types', [])
-
-    breakfast_recipe = None
-    lunch_recipe = None
-    dinner_recipe = None
-
-    show_all = not selected_meal_types
-
-    user_liked_ids = []
-    user_disliked_ids = []
-    can_refresh_breakfast = True
-    can_refresh_lunch = True
-    can_refresh_dinner = True
-    remaining_breakfast = 3
-    remaining_lunch = 3
-    remaining_dinner = 3
-
-    if request.user.is_authenticated:
-      try:
-        profile = UserProfile.objects.get(user=request.user)
-        user_liked_ids = list(profile.liked_recipes.values_list('id', flat=True))
-        user_disliked_ids = list(profile.disliked_recipes.values_list('id', flat=True))
-        can_refresh_breakfast = profile.can_refresh_breakfast()
-        can_refresh_lunch = profile.can_refresh_lunch()
-        can_refresh_dinner = profile.can_refresh_dinner()
-        remaining_breakfast = 3 - profile.breakfast_refresh_count
-        remaining_lunch = 3 - profile.lunch_refresh_count
-        remaining_dinner = 3 - profile.dinner_refresh_count
-      except UserProfile.DoesNotExist:
+        breakfast_recipe = Recipe.objects.get(id=breakfast_id)
+      except Recipe.DoesNotExist:
         pass
 
-    if show_all or 'breakfast' in selected_meal_types:
-      breakfast_id = request.session.get('breakfast_recipe_id')
-      if breakfast_id:
-        try:
-          breakfast_recipe = Recipe.objects.get(id=breakfast_id)
-        except Recipe.DoesNotExist:
-          pass
+  if show_all or 'lunch' in selected_meal_types:
+    lunch_id = request.session.get('lunch_recipe_id')
+    if lunch_id:
+      try:
+        lunch_recipe = Recipe.objects.get(id=lunch_id)
+      except Recipe.DoesNotExist:
+        pass
 
-      if not breakfast_recipe:
-        breakfast_recipes = get_filtered_recipes(filters, meal_type='breakfast', user=request.user)
-        if breakfast_recipes:
-          breakfast_recipe = random.choice(breakfast_recipes)
-          request.session['breakfast_recipe_id'] = breakfast_recipe.id
+  if show_all or 'dinner' in selected_meal_types:
+    dinner_id = request.session.get('dinner_recipe_id')
+    if dinner_id:
+      try:
+        dinner_recipe = Recipe.objects.get(id=dinner_id)
+      except Recipe.DoesNotExist:
+        pass
 
-    if show_all or 'lunch' in selected_meal_types:
-      lunch_id = request.session.get('lunch_recipe_id')
-      if lunch_id:
-        try:
-          lunch_recipe = Recipe.objects.get(id=lunch_id)
-        except Recipe.DoesNotExist:
-          pass
+  recipe = lunch_recipe or breakfast_recipe or dinner_recipe
 
-      if not lunch_recipe:
-        lunch_recipes = get_filtered_recipes(filters, meal_type='lunch', user=request.user)
-        if lunch_recipes:
-          lunch_recipe = random.choice(lunch_recipes)
-          request.session['lunch_recipe_id'] = lunch_recipe.id
-
-    if show_all or 'dinner' in selected_meal_types:
-      dinner_id = request.session.get('dinner_recipe_id')
-      if dinner_id:
-        try:
-          dinner_recipe = Recipe.objects.get(id=dinner_id)
-        except Recipe.DoesNotExist:
-          pass
-
-      if not dinner_recipe:
-        dinner_recipes = get_filtered_recipes(filters, meal_type='dinner', user=request.user)
-        if dinner_recipes:
-          dinner_recipe = random.choice(dinner_recipes)
-          request.session['dinner_recipe_id'] = dinner_recipe.id
-
-    recipe = lunch_recipe or breakfast_recipe or dinner_recipe
-
-    return render(request, 'recipe-details.html', {
-      'recipe': recipe,
-      'breakfast_recipe': breakfast_recipe,
-      'lunch_recipe': lunch_recipe,
-      'dinner_recipe': dinner_recipe,
-      'show_breakfast': show_all or 'breakfast' in selected_meal_types,
-      'show_lunch': show_all or 'lunch' in selected_meal_types,
-      'show_dinner': show_all or 'dinner' in selected_meal_types,
-      'dish_types': Recipe.TYPE_CHOICES,
-      'filters': filters,
-      'user_liked_ids': user_liked_ids,
-      'user_disliked_ids': user_disliked_ids,
-      'can_refresh_breakfast': can_refresh_breakfast,
-      'can_refresh_lunch': can_refresh_lunch,
-      'can_refresh_dinner': can_refresh_dinner,
-      'remaining_breakfast': remaining_breakfast,
-      'remaining_lunch': remaining_lunch,
-      'remaining_dinner': remaining_dinner,
-    })
+  return render(request, 'recipe-details.html', {
+    'recipe': recipe,
+    'breakfast_recipe': breakfast_recipe,
+    'lunch_recipe': lunch_recipe,
+    'dinner_recipe': dinner_recipe,
+    'show_breakfast': show_all or 'breakfast' in selected_meal_types,
+    'show_lunch': show_all or 'lunch' in selected_meal_types,
+    'show_dinner': show_all or 'dinner' in selected_meal_types,
+    'dish_types': Recipe.TYPE_CHOICES,
+    'filters': filters,
+    'user_liked_ids': user_liked_ids,
+    'user_disliked_ids': user_disliked_ids,
+    'can_refresh_breakfast': can_refresh_breakfast,
+    'can_refresh_lunch': can_refresh_lunch,
+    'can_refresh_dinner': can_refresh_dinner,
+    'remaining_breakfast': remaining_breakfast,
+    'remaining_lunch': remaining_lunch,
+    'remaining_dinner': remaining_dinner,
+  })
 
 
 @login_required
@@ -197,50 +180,69 @@ def dislike_recipe(request, recipe_id):
   return redirect('recipes:recipe_details')
 
 
-@login_required
+
 @login_required
 def apply_filters(request):
-  if request.method == 'POST':
-    filters = {}
+    if request.method == 'POST':
+        filters = {}
 
-    meal_types = request.POST.getlist('meal_types')
-    if meal_types:
-      filters['meal_types'] = meal_types
+        meal_types = request.POST.getlist('meal_types')
+        if meal_types:
+            filters['meal_types'] = meal_types
 
-    if request.POST.get('low_calorie'):
-      filters['low_calorie'] = True
+        if request.POST.get('low_calorie'):
+            filters['low_calorie'] = True
 
-    if request.POST.get('is_vegetarian'):
-      filters['is_vegetarian'] = True
+        if request.POST.get('is_vegetarian'):
+            filters['is_vegetarian'] = True
 
-    if request.POST.get('no_gluten'):
-      filters['no_gluten'] = True
+        if request.POST.get('no_gluten'):
+            filters['no_gluten'] = True
 
-    dish_type = request.POST.get('dish_type')
-    if dish_type:
-      filters['dish_type'] = dish_type
+        dish_type = request.POST.get('dish_type')
+        if dish_type:
+            filters['dish_type'] = dish_type
 
-    max_cost = request.POST.get('max_cost')
-    if max_cost:
-      filters['max_cost'] = max_cost
+        max_cost = request.POST.get('max_cost')
+        if max_cost:
+            filters['max_cost'] = max_cost
 
-    try:
-      profile = UserProfile.objects.get(user=request.user)
-      profile.filters = filters
-      profile.save()
-    except UserProfile.DoesNotExist:
-      pass
+        profile = UserProfile.objects.get(user=request.user)
+        profile.filters = filters
+        profile.save()
 
-    request.session['recipe_filters'] = filters
+        request.session['recipe_filters'] = filters
 
-    request.session.pop('breakfast_recipe_id', None)
-    request.session.pop('lunch_recipe_id', None)
-    request.session.pop('dinner_recipe_id', None)
+
+        if 'breakfast' in meal_types or not meal_types:
+            if profile.can_refresh_breakfast():
+                breakfast_recipes = get_filtered_recipes(filters, meal_type='breakfast', user=request.user)
+                if breakfast_recipes:
+                    new_recipe = random.choice(breakfast_recipes)
+                    request.session['breakfast_recipe_id'] = new_recipe.id
+                    profile.apply_filters_breakfast()
+
+
+        if 'lunch' in meal_types or not meal_types:
+            if profile.can_refresh_lunch():
+                lunch_recipes = get_filtered_recipes(filters, meal_type='lunch', user=request.user)
+                if lunch_recipes:
+                    new_recipe = random.choice(lunch_recipes)
+                    request.session['lunch_recipe_id'] = new_recipe.id
+                    profile.apply_filters_lunch()
+
+
+        if 'dinner' in meal_types or not meal_types:
+            if profile.can_refresh_dinner():
+                dinner_recipes = get_filtered_recipes(filters, meal_type='dinner', user=request.user)
+                if dinner_recipes:
+                    new_recipe = random.choice(dinner_recipes)
+                    request.session['dinner_recipe_id'] = new_recipe.id
+                    profile.apply_filters_dinner()
+
+        return redirect('recipes:recipe_details')
 
     return redirect('recipes:recipe_details')
-
-  return redirect('recipes:recipe_details')
-
 
 def user_login(request):
   if request.method == 'POST':

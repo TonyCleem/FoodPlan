@@ -151,6 +151,45 @@ class UserProfile(models.Model):
 
     self.save()
 
+  def apply_filters_breakfast(self):
+    self.reset_refresh_counts()
+    if self.breakfast_refresh_count < 3:
+      self.breakfast_refresh_count += 1
+      self.last_refresh_date = timezone.now()
+
+      if self.breakfast_refresh_count >= 3:
+        self.breakfast_blocked_until = timezone.now() + timedelta(hours=24)
+
+      self.save()
+      return True
+    return False
+
+  def apply_filters_lunch(self):
+    self.reset_refresh_counts()
+    if self.lunch_refresh_count < 3:
+      self.lunch_refresh_count += 1
+      self.last_refresh_date = timezone.now()
+
+      if self.lunch_refresh_count >= 3:
+        self.lunch_blocked_until = timezone.now() + timedelta(hours=24)
+
+      self.save()
+      return True
+    return False
+
+  def apply_filters_dinner(self):
+    self.reset_refresh_counts()
+    if self.dinner_refresh_count < 3:
+      self.dinner_refresh_count += 1
+      self.last_refresh_date = timezone.now()
+
+      if self.dinner_refresh_count >= 3:
+        self.dinner_blocked_until = timezone.now() + timedelta(hours=24)
+
+      self.save()
+      return True
+    return False
+
   class Meta:
     verbose_name = 'Профиль пользователя'
     verbose_name_plural = 'Профили пользователей'
