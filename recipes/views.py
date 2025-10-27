@@ -416,4 +416,24 @@ def get_filtered_recipes(filters, meal_type=None, user=None):
     except (ValueError, TypeError):
       pass
 
+  # Сделал приоритет по весу
+  if user and user.is_authenticated and filtered_recipes:
+    try:
+      profile = UserProfile.objects.get(user=user)
+      liked_recipe_ids = set(profile.liked_recipes.values_list('id', flat=True))
+
+      if liked_recipe_ids:
+        weights = []
+        for recipe in filtered_recipes:
+          if recipe.id in liked_recipe_ids:
+            weights.append(3)
+          else:
+            weights.append(1)
+
+        chosen_recipe = random.choices(filtered_recipes, weights=weights, k=1)[0]
+        return [chosen_recipe]
+
+    except UserProfile.DoesNotExist:
+      pass
+
   return filtered_recipes
