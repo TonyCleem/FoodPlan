@@ -1,0 +1,422 @@
+[
+  {
+    "model": "recipes.ingredient",
+    "pk": 1,
+    "fields": {
+      "name": "Яйцо",
+      "weight": 60,
+      "cost": 12.0,
+      "allergens": "яйца"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 2,
+    "fields": {
+      "name": "Овсяные хлопья",
+      "weight": 40,
+      "cost": 8.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 3,
+    "fields": {
+      "name": "Молоко",
+      "weight": 200,
+      "cost": 18.0,
+      "allergens": "молоко"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 4,
+    "fields": {
+      "name": "Банан",
+      "weight": 120,
+      "cost": 15.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 5,
+    "fields": {
+      "name": "Куриная грудка",
+      "weight": 150,
+      "cost": 75.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 6,
+    "fields": {
+      "name": "Рис",
+      "weight": 100,
+      "cost": 12.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 7,
+    "fields": {
+      "name": "Брокколи",
+      "weight": 150,
+      "cost": 35.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 8,
+    "fields": {
+      "name": "Лосось",
+      "weight": 120,
+      "cost": 180.0,
+      "allergens": "рыба"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 9,
+    "fields": {
+      "name": "Киноа",
+      "weight": 80,
+      "cost": 45.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 10,
+    "fields": {
+      "name": "Авокадо",
+      "weight": 100,
+      "cost": 90.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 11,
+    "fields": {
+      "name": "Томат",
+      "weight": 100,
+      "cost": 20.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 12,
+    "fields": {
+      "name": "Греческий йогурт",
+      "weight": 150,
+      "cost": 40.0,
+      "allergens": "молоко"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 13,
+    "fields": {
+      "name": "Миндаль",
+      "weight": 30,
+      "cost": 55.0,
+      "allergens": "орехи"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 14,
+    "fields": {
+      "name": "Картофель",
+      "weight": 200,
+      "cost": 15.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 15,
+    "fields": {
+      "name": "Сыр фета",
+      "weight": 50,
+      "cost": 60.0,
+      "allergens": "молоко"
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 16,
+    "fields": {
+      "name": "Шпинат",
+      "weight": 50,
+      "cost": 25.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 17,
+    "fields": {
+      "name": "Чечевица",
+      "weight": 100,
+      "cost": 20.0,
+      "allergens": ""
+    }
+  },
+  {
+    "model": "recipes.ingredient",
+    "pk": 18,
+    "fields": {
+      "name": "Тыква",
+      "weight": 200,
+      "cost": 30.0,
+      "allergens": ""
+    }
+  },
+
+  {
+    "model": "recipes.recipe",
+    "pk": 1,
+    "fields": {
+      "name": "Овсянка с бананом и миндалём",
+      "image": "recipes/ovsyanka.jpg",
+      "ingredients": [2, 3, 4, 13],
+      "calories": 380,
+      "is_vegetarian": true,
+      "diet_type": "regular",
+      "dish_type": "grains",
+      "no_gluten": true,
+      "meal_type": "breakfast",
+      "instructions": "1. Залейте овсянку молоком.\n2. Поставьте в микроволновку на 2 минуты.\n3. Добавьте нарезанный банан и миндаль.\nГотово!",
+      "created_at": "2025-04-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 2,
+    "fields": {
+      "name": "Яичница с авокадо и шпинатом",
+      "image": "recipes/yachnitsa.jpg",
+      "ingredients": [1, 10, 16],
+      "calories": 420,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "dairy",
+      "no_gluten": true,
+      "meal_type": "breakfast",
+      "instructions": "1. Разбейте яйца на сковороду.\n2. Добавьте шпинат, готовьте 2 минуты.\n3. Подавайте с ломтиками авокадо.",
+      "created_at": "2025-04-05T10:05:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 3,
+    "fields": {
+      "name": "Греческий йогурт с ягодами",
+      "image": "recipes/yogurt.jpg",
+      "ingredients": [12, 4],
+      "calories": 280,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "dairy",
+      "no_gluten": true,
+      "meal_type": "breakfast",
+      "instructions": "1. Выложите йогурт в миску.\n2. Добавьте нарезанный банан.\n3. Перемешайте и подавайте.",
+      "created_at": "2025-04-05T10:10:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 4,
+    "fields": {
+      "name": "Омлет с брокколи и сыром",
+      "image": "recipes/omlet.jpg",
+      "ingredients": [1, 7, 15],
+      "calories": 450,
+      "is_vegetarian": true,
+      "diet_type": "regular",
+      "dish_type": "dairy",
+      "no_gluten": true,
+      "meal_type": "breakfast",
+      "instructions": "1. Взбейте яйца.\n2. Добавьте брокколи и сыр.\n3. Жарьте на сковороде 5 минут.",
+      "created_at": "2025-04-05T10:15:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 5,
+    "fields": {
+      "name": "Курица с рисом и брокколи",
+      "image": "recipes/chicken_rice.jpg",
+      "ingredients": [5, 6, 7],
+      "calories": 520,
+      "is_vegetarian": false,
+      "diet_type": "regular",
+      "dish_type": "meat",
+      "no_gluten": true,
+      "meal_type": "lunch",
+      "instructions": "1. Отварите рис.\n2. Обжарьте курицу.\n3. Добавьте брокколи и тушите 10 минут.",
+      "created_at": "2025-04-05T12:00:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 6,
+    "fields": {
+      "name": "Салат с лососем и киноа",
+      "image": "recipes/salmon_quinoa.jpg",
+      "ingredients": [8, 9, 10, 11],
+      "calories": 480,
+      "is_vegetarian": false,
+      "diet_type": "low_calorie",
+      "dish_type": "fish",
+      "no_gluten": true,
+      "meal_type": "lunch",
+      "instructions": "1. Сварите киноа.\n2. Обжарьте лосось.\n3. Смешайте с авокадо и томатами.",
+      "created_at": "2025-04-05T12:05:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 7,
+    "fields": {
+      "name": "Чечевичный суп с тыквой",
+      "image": "recipes/lentil_soup.jpg",
+      "ingredients": [17, 18, 11],
+      "calories": 320,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "grains",
+      "no_gluten": true,
+      "meal_type": "lunch",
+      "instructions": "1. Замочите чечевицу.\n2. Нарежьте тыкву.\n3. Варите 25 минут с томатами.",
+      "created_at": "2025-04-05T12:10:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 8,
+    "fields": {
+      "name": "Картофельное пюре с курицей",
+      "image": "recipes/mashed_potatoes.jpg",
+      "ingredients": [5, 14, 3],
+      "calories": 580,
+      "is_vegetarian": false,
+      "diet_type": "regular",
+      "dish_type": "meat",
+      "no_gluten": true,
+      "meal_type": "lunch",
+      "instructions": "1. Сварите картофель.\n2. Разомните с молоком.\n3. Подавайте с жареной курицей.",
+      "created_at": "2025-04-05T12:15:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 9,
+    "fields": {
+      "name": "Лосось с овощами на пару",
+      "image": "recipes/salmon_veg.jpg",
+      "ingredients": [8, 7, 11],
+      "calories": 460,
+      "is_vegetarian": false,
+      "diet_type": "low_calorie",
+      "dish_type": "fish",
+      "no_gluten": true,
+      "meal_type": "dinner",
+      "instructions": "1. Запарьте овощи.\n2. Запеките лосось 15 минут при 180°C.\n3. Подавайте вместе.",
+      "created_at": "2025-04-05T19:00:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 10,
+    "fields": {
+      "name": "Киноа с авокадо и томатами",
+      "image": "recipes/quinoa_avocado.jpg",
+      "ingredients": [9, 10, 11],
+      "calories": 390,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "nuts",
+      "no_gluten": true,
+      "meal_type": "dinner",
+      "instructions": "1. Сварите киноа.\n2. Нарежьте авокадо и томаты.\n3. Смешайте и заправьте маслом.",
+      "created_at": "2025-04-05T19:05:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 11,
+    "fields": {
+      "name": "Тёплый салат с курицей",
+      "image": "recipes/warm_salad.jpg",
+      "ingredients": [5, 16, 11, 15],
+      "calories": 420,
+      "is_vegetarian": false,
+      "diet_type": "regular",
+      "dish_type": "meat",
+      "no_gluten": true,
+      "meal_type": "dinner",
+      "instructions": "1. Обжарьте курицу.\n2. Добавьте шпинат и томаты.\n3. Посыпьте фетой.",
+      "created_at": "2025-04-05T19:10:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 12,
+    "fields": {
+
+      "name": "Овощное рагу с тофу",
+      "image": "recipes/veg_stew.jpg",
+      "ingredients": [7, 11, 18],
+      "calories": 310,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "grains",
+      "no_gluten": true,
+      "meal_type": "dinner",
+      "instructions": "1. Нарежьте овощи.\n2. Тушите 20 минут.\n3. Добавьте специи по вкусу.",
+      "created_at": "2025-04-05T19:15:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 13,
+    "fields": {
+      "name": "Запечённая треска с картофелем",
+      "image": "recipes/cod_potato.jpg",
+      "ingredients": [14],
+      "calories": 490,
+      "is_vegetarian": false,
+      "diet_type": "regular",
+      "dish_type": "fish",
+      "no_gluten": true,
+      "meal_type": "dinner",
+      "instructions": "1. Нарежьте картофель.\n2. Запекайте с рыбой 25 минут при 200°C.",
+      "created_at": "2025-04-05T19:20:00Z"
+    }
+  },
+  {
+    "model": "recipes.recipe",
+    "pk": 14,
+    "fields": {
+      "name": "Смузи-боул с ягодами и орехами",
+      "image": "recipes/smoothie_bowl.jpg",
+      "ingredients": [12, 4, 13],
+      "calories": 350,
+      "is_vegetarian": true,
+      "diet_type": "low_calorie",
+      "dish_type": "honey",
+      "no_gluten": true,
+      "meal_type": "breakfast",
+      "instructions": "1. Взбейте йогурт с бананом.\n2. Выложите в миску.\n3. Посыпьте миндалём.",
+      "created_at": "2025-04-05T10:20:00Z"
+    }
+  }
+]

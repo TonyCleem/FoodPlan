@@ -1,0 +1,85 @@
+<!-- templates/includes/meal_card.html -->
+<div class="card meal-card">
+  <div class="card-header {% if meal == 'breakfast' %}bg-warning text-dark
+       {% elif meal == 'lunch' %}bg-primary text-white
+       {% else %}bg-success text-white{% endif %}">
+    <h4 class="mb-0">
+      {% if meal == 'breakfast' %}Завтрак
+      {% elif meal == 'lunch' %}Обед
+      {% else %}Ужин{% endif %}
+    </h4>
+  </div>
+  <div class="card-img-container">
+    <img src="{{ recipe.image.url|default:'/static/img/circle1.png' }}" alt="{{ recipe.name }}" class="card-img-top">
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{{ recipe.name }}</h5>
+
+    <div class="mb-3">
+      <h6><strong>Ингредиенты:</strong></h6>
+      <ul class="list-group list-group-flush">
+        {% for ing in recipe.ingredients.all %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ ing.name }} ({{ ing.weight }}г)</span>
+            <span class="text-success fw-bold">{{ ing.cost }}₽</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-6">
+        <h6 class="text-primary">Калорийность: <span class="fw-bold">{{ recipe.calories }} ккал</span></h6>
+      </div>
+      <div class="col-6">
+        <h6 class="text-success">Стоимость: <span class="fw-bold">{{ recipe.total_cost }}₽</span></h6>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-6">
+        <h6>Тип: {{ recipe.get_dish_type_display }}</h6>
+      </div>
+      <div class="col-6">
+        <h6>Вегетарианское: {% if recipe.is_vegetarian %}Да{% else %}Нет{% endif %}</h6>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h6><strong>Как приготовить:</strong></h6>
+      <div class="border p-3 rounded bg-light">
+        {{ recipe.instructions|linebreaks|default:"Инструкция отсутствует" }}
+      </div>
+    </div>
+
+    {% if not can_refresh_breakfast and meal == 'breakfast' or not can_refresh_lunch and meal == 'lunch' or not can_refresh_dinner and meal == 'dinner' %}
+      <div class="alert alert-warning text-center mb-3">
+        <strong>Лимит обновлений исчерпан</strong><br>
+        <small>Вернитесь завтра!</small>
+      </div>
+    {% endif %}
+
+    <div class="action-buttons">
+      <form method="POST" action="{% url 'recipes:dislike_recipe' recipe.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn {% if recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
+          Дизлайк
+        </button>
+      </form>
+      <form method="POST" action="{% url 'recipes:like_recipe' recipe.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn {% if recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
+          Лайк
+        </button>
+      </form>
+      <form method="POST" action="{% url 'recipes:refresh_'|add:meal %}">
+        {% csrf_token %}
+        <button type="submit" class="btn {% if meal == 'breakfast' and not can_refresh_breakfast or meal == 'lunch' and not can_refresh_lunch or meal == 'dinner' and not can_refresh_dinner %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
+                {% if meal == 'breakfast' and not can_refresh_breakfast or meal == 'lunch' and not can_refresh_lunch or meal == 'dinner' and not can_refresh_dinner %}disabled{% endif %}>
+          Обновить
+          <small class="d-block">(осталось: {% if meal == 'breakfast' %}{{ remaining_breakfast }}{% elif meal == 'lunch' %}{{ remaining_lunch }}{% else %}{{ remaining_dinner }}{% endif %}/3)</small>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

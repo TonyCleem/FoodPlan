@@ -6,56 +6,52 @@ from .models import Recipe, Ingredient, UserProfile
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'calories', 'is_vegetarian', 'diet_type', 'dish_type',
-                    'no_gluten', 'total_cost', 'like_count', 'image_preview', 'meal_type')
-    list_filter = ('is_vegetarian', 'diet_type', 'dish_type', 'no_gluten', 'created_at', 'meal_type')
-    search_fields = ('name',)
-    filter_horizontal = ('ingredients',)
-    list_editable = ('is_vegetarian', 'no_gluten')
-    ordering = ('-created_at',)
-    date_hierarchy = 'created_at'
-    actions = ['make_vegetarian', 'make_non_vegetarian', 'make_gluten_free', 'make_non_gluten_free']
+  list_display = ('name', 'calories', 'is_vegetarian', 'diet_type', 'dish_type',
+                 'no_gluten', 'total_cost', 'like_count', 'image_preview', 'meal_type')
+  list_filter = ('is_vegetarian', 'diet_type', 'dish_type', 'no_gluten',
+                 'created_at', 'meal_type')
+  search_fields = ('name',)
+  filter_horizontal = ('ingredients',)
+  list_editable = ('is_vegetarian', 'no_gluten')
+  ordering = ('-created_at',)
+  date_hierarchy = 'created_at'
+  actions = ['make_vegetarian', 'make_non_vegetarian', 'make_gluten_free',
+             'make_non_gluten_free']
 
-    fieldsets = (
-        ('Основное', {'fields': ('name', 'image', 'meal_type')}),
-        ('Питание', {'fields': ('calories', 'is_vegetarian', 'no_gluten', 'diet_type', 'dish_type')}),
-        ('Ингредиенты', {'fields': ('ingredients',)}),
-        ('Инструкция', {'fields': ('instructions',)}),
-    )
+  def like_count(self, obj):
+    return obj.liked_by.count()
+  like_count.short_description = 'Количество лайков'
 
-    def like_count(self, obj):
-        return obj.liked_by.count()
-    like_count.short_description = 'Количество лайков'
+  def image_preview(self, obj):
+    if obj.image:
+      return format_html('<img src="{}" style="max-height: 50px;" />',
+                        obj.image.url)
+    return 'Нет изображения'
+  image_preview.short_description = 'Превью'
 
-    def image_preview(self, obj):
-        if obj.image:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image.url)
-        return 'Нет изображения'
-    image_preview.short_description = 'Превью'
+  def make_vegetarian(self, request, queryset):
+    queryset.update(is_vegetarian=True)
+  make_vegetarian.short_description = 'Пометить как вегетарианское'
 
-    def make_vegetarian(self, request, queryset):
-        queryset.update(is_vegetarian=True)
-    make_vegetarian.short_description = 'Пометить как вегетарианское'
+  def make_non_vegetarian(self, request, queryset):
+    queryset.update(is_vegetarian=False)
+  make_non_vegetarian.short_description = 'Пометить как невегетарианское'
 
-    def make_non_vegetarian(self, request, queryset):
-        queryset.update(is_vegetarian=False)
-    make_non_vegetarian.short_description = 'Пометить как невегетарианское'
+  def make_gluten_free(self, request, queryset):
+    queryset.update(no_gluten=True)
+  make_gluten_free.short_description = 'Пометить как безглютеновое'
 
-    def make_gluten_free(self, request, queryset):
-        queryset.update(no_gluten=True)
-    make_gluten_free.short_description = 'Пометить как безглютеновое'
-
-    def make_non_gluten_free(self, request, queryset):
-        queryset.update(no_gluten=False)
-    make_non_gluten_free.short_description = 'Пометить как содержащее глютен'
+  def make_non_gluten_free(self, request, queryset):
+    queryset.update(no_gluten=False)
+  make_non_gluten_free.short_description = 'Пометить как содержащее глютен'
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'weight', 'cost', 'allergens')
-    search_fields = ('name',)
-    list_editable = ('weight', 'cost', 'allergens')
-    ordering = ('name',)
+  list_display = ('name', 'weight', 'cost')
+  search_fields = ('name',)
+  list_editable = ('weight', 'cost')
+  ordering = ('name',)
 
 
 @admin.register(UserProfile)
@@ -74,8 +70,12 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'allergies')
     list_filter = ('user__is_active',)
     actions = [
-        'reset_all_limits', 'reset_breakfast_limits', 'reset_lunch_limits',
-        'reset_dinner_limits', 'clear_disliked_recipes', 'clear_liked_recipes'
+        'reset_all_limits',
+        'reset_breakfast_limits',
+        'reset_lunch_limits',
+        'reset_dinner_limits',
+        'clear_disliked_recipes',
+        'clear_liked_recipes'
     ]
     readonly_fields = ('last_refresh_date', 'breakfast_blocked_until', 'lunch_blocked_until', 'dinner_blocked_until')
 
@@ -94,25 +94,25 @@ class UserProfileAdmin(admin.ModelAdmin):
     def breakfast_status_display(self, obj):
         obj.reset_refresh_counts()
         if obj.breakfast_blocked_until and timezone.now() < obj.breakfast_blocked_until:
-            return f"Blocked until {obj.breakfast_blocked_until.strftime('%d.%m.%Y %H:%M')}"
+            return f"🚫 До {obj.breakfast_blocked_until.strftime('%d.%m.%Y %H:%M')}"
         remaining = 3 - obj.breakfast_refresh_count
-        return f"{obj.breakfast_refresh_count}/3 (ост: {remaining})"
+        return f"✅ {obj.breakfast_refresh_count}/3 (ост: {remaining})"
     breakfast_status_display.short_description = 'Завтрак'
 
     def lunch_status_display(self, obj):
         obj.reset_refresh_counts()
         if obj.lunch_blocked_until and timezone.now() < obj.lunch_blocked_until:
-            return f"Blocked until {obj.lunch_blocked_until.strftime('%d.%m.%Y %H:%M')}"
+            return f"🚫 До {obj.lunch_blocked_until.strftime('%d.%m.%Y %H:%M')}"
         remaining = 3 - obj.lunch_refresh_count
-        return f"{obj.lunch_refresh_count}/3 (ост: {remaining})"
+        return f"✅ {obj.lunch_refresh_count}/3 (ост: {remaining})"
     lunch_status_display.short_description = 'Обед'
 
     def dinner_status_display(self, obj):
         obj.reset_refresh_counts()
         if obj.dinner_blocked_until and timezone.now() < obj.dinner_blocked_until:
-            return f"Blocked until {obj.dinner_blocked_until.strftime('%d.%m.%Y %H:%M')}"
+            return f"🚫 До {obj.dinner_blocked_until.strftime('%d.%m.%Y %H:%M')}"
         remaining = 3 - obj.dinner_refresh_count
-        return f"{obj.dinner_refresh_count}/3 (ост: {remaining})"
+        return f"✅ {obj.dinner_refresh_count}/3 (ост: {remaining})"
     dinner_status_display.short_description = 'Ужин'
 
     def reset_all_limits(self, request, queryset):

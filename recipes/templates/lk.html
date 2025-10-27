@@ -1,106 +1,87 @@
+<!-- recipes/templates/lk.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <title>FoodPlan — Личный кабинет</title>
+  <title>Личный кабинет – FoodPlan</title>
 </head>
 <body>
+  <!-- ХЕДЕР -->
   <header>
     <nav class="navbar navbar-light fixed-top navbar__opacity">
-      <div class="container">
+      <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand" href="{% url 'recipes:index' %}">
-          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55"
-               width="189" alt="FoodPlan">
+          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55" width="189" alt="FoodPlan">
         </a>
-        <div class="nav-buttons">
-          <a href="{% url 'recipes:logout' %}"
-             class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+
+        <div>
+          <a href="{% url 'recipes:recipe_details' %}" class="btn shadow-none btn-outline-primary me-2">
+            Выбор блюд
+          </a>
+          <a href="{% url 'recipes:logout' %}" class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
             Выйти
           </a>
         </div>
       </div>
+
     </nav>
   </header>
+
   <main style="margin-top: calc(2rem + 85px);">
-    <section class="py-5">
-      <div class="container">
-        <h1 class="mb-4">Личный кабинет</h1>
-        <div class="profile-section mb-5">
-          <h3 class="mb-3">Учетная запись</h3>
-          <div class="card foodplan__card_borderless foodplan__shadow">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-12 col-md-6">
-                  <h5><strong>Имя:</strong> {{ user.first_name|default:"Не указано" }}</h5>
-                  <h5><strong>Email:</strong> {{ user.email|default:"Не указано" }}</h5>
-                  <h5><strong>Аллергии:</strong> {{ profile.allergies|default:"Нет" }}</h5>
-                </div>
-                <div class="col-12 col-md-6 text-md-end mt-3 mt-md-0">
-                  <a href="#" class="btn btn-outline-primary foodplan_green foodplan__border_green">
-                    Редактировать профиль
-                  </a>
-                </div>
-              </div>
-            </div>
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="card text-center p-4 shadow-sm">
+            <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/avatar-placeholder.png' %}{% endif %}"
+                 class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit: cover;" alt="Фото профиля">
+            <h4>{{ user.first_name|default:user.email }}</h4>
+            <p class="text-muted small">{{ user.email }}</p>
+            <p><strong>Аллергии:</strong> {{ profile.allergies|default:"Нет" }}</p>
+            <a href="{% url 'recipes:edit_profile' %}" class="btn btn-outline-success btn-sm">Редактировать профиль</a>
           </div>
         </div>
-        <h3 class="mb-4">Избранные блюда</h3>
-        {% if liked_recipes %}
-          <div class="row">
-            {% for recipe in liked_recipes %}
-              <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                <div class="card recipe-card foodplan__card_borderless foodplan__shadow">
-                  <img src="{{ recipe.image.url|default:'/static/img/circle1.png' }}"
-                       class="card-img-top" alt="{{ recipe.name }}"
-                       style="height: 200px; object-fit: cover;">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ recipe.name }}</h5>
-                    <p class="card-text text-muted">
-                      {{ recipe.calories }} ккал • {{ recipe.total_cost }} ₽
-                    </p>
-                    <a href="{% url 'recipes:recipe_card' recipe.id %}"
-                       class="btn btn-outline-success foodplan_green foodplan__border_green w-100">
-                      Посмотреть
-                    </a>
+        <div class="col-md-8">
+          <h3 class="mb-4">Избранные блюда</h3>
+          {% if liked_recipes %}
+            <div class="row">
+              {% for recipe in liked_recipes %}
+                <div class="col-md-6 mb-3">
+                  <div class="card h-100 shadow-sm">
+                    <img src="{{ recipe.image.url|default:'/static/img/circle1.png' }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                      <h6 class="card-title">{{ recipe.name }}</h6>
+                      <p class="text-muted small">{{ recipe.calories }} ккал • {{ recipe.total_cost }} ₽</p>
+                      <a href="{% url 'recipes:recipe_card' recipe.id %}" class="btn btn-outline-success btn-sm mt-auto">Открыть рецепт</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="text-center py-5">
-            <h3>😔 Пока нет избранных блюд</h3>
-            <p class="text-muted">
-              Перейдите к <a href="{% url 'recipes:recipe_details' %}" class="link-success">
-              выбору блюд</a> и добавьте понравившиеся в избранное!
-            </p>
-          </div>
-        {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-5">
+              <p class="text-muted">Пока нет избранных блюд.</p>
+              <a href="{% url 'recipes:recipe_details' %}" class="btn btn-success foodplan_green">Выбрать блюда</a>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    </section>
+    </div>
   </main>
+
+  <!-- ФУТЕР -->
   <footer class="footer py-4 mt-5" style="border-top: 1px solid lightgray;">
     <div class="container d-flex flex-row justify-content-between mb-2">
       <a href="https://vk.com/devmanorg">
         <img src="{% static 'img/vk.png' %}" height="40" width="auto" alt="VK">
       </a>
       <div>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Виды меню</b>
-        </a>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Блог</b>
-        </a>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Контакты</b>
-        </a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Виды меню</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Блог</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Контакты</b></a>
       </div>
     </div>
     <div class="container">
@@ -111,8 +92,7 @@
       <h6 class="link-secondary text-center">© Devman 2022. All right reserved.</h6>
     </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-          crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

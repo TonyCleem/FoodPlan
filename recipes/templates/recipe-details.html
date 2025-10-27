@@ -1,521 +1,400 @@
+<!-- templates/recipe-details.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <title>FoodPlan — Выбор блюда</title>
   <style>
-    .meal-section {
-      margin-bottom: 3rem;
-    }
-    .meal-card {
-      transition: transform 0.2s;
-    }
-    .meal-card:hover {
-      transform: translateY(-5px);
-    }
-    .card-img-container {
-      height: 250px;
-      overflow: hidden;
-    }
-    .card-img-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .btn-action {
-      flex: 1;
-      max-width: 120px;
-    }
+    .meal-section { margin-bottom: 3rem; }
+    .meal-card { transition: transform 0.2s; }
+    .meal-card:hover { transform: translateY(-5px); }
+    .card-img-container { height: 250px; overflow: hidden; }
+    .card-img-container img { width: 100%; height: 100%; object-fit: cover; }
+    .action-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .btn-action { flex: 1; max-width: 120px; }
   </style>
 </head>
 <body>
+
+  <!-- ХЕДЕР -->
   <header>
     <nav class="navbar navbar-light fixed-top navbar__opacity">
       <div class="container">
         <a class="navbar-brand" href="{% url 'recipes:index' %}">
-          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55"
-               width="189" alt="FoodPlan">
+          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55" width="189" alt="FoodPlan">
         </a>
         {% if user.is_authenticated %}
           <div class="nav-buttons">
-            <a href="{% url 'recipes:lk' %}"
-               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+            <a href="{% url 'recipes:lk' %}" class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
               Личный кабинет
             </a>
-            <a href="{% url 'recipes:logout' %}"
-               class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+            <a href="{% url 'recipes:logout' %}" class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
               Выйти
             </a>
           </div>
         {% else %}
-          <a href="{% url 'recipes:login' %}?next={% url 'recipes:recipe_details' %}"
-             class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+          <a href="{% url 'recipes:login' %}" class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
             Войти
           </a>
         {% endif %}
       </div>
     </nav>
   </header>
+
   <main style="margin-top: calc(2rem + 85px);">
-    <section>
-      <div class="container">
-        {% if error %}
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                    aria-label="Close"></button>
+    <div class="container">
+
+      <!-- ФИЛЬТРЫ -->
+      {% if has_started %}
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Фильтры блюд</h5>
+                <form method="POST" action="{% url 'recipes:apply_filters' %}">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label fw-bold">Тип приема пищи:</label>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="meal_types" value="breakfast"
+                               {% if 'breakfast' in filters.meal_types %}checked{% endif %}>
+                        <label class="form-check-label">Завтрак</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="meal_types" value="lunch"
+                               {% if 'lunch' in filters.meal_types %}checked{% endif %}>
+                        <label class="form-check-label">Обед</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="meal_types" value="dinner"
+                               {% if 'dinner' in filters.meal_types %}checked{% endif %}>
+                        <label class="form-check-label">Ужин</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label class="form-label fw-bold">Дополнительно:</label>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="low_calorie" {% if filters.low_calorie %}checked{% endif %}>
+                        <label class="form-check-label">Низкокалорийное (&lt;500 ккал)</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_vegetarian" {% if filters.is_vegetarian %}checked{% endif %}>
+                        <label class="form-check-label">Вегетарианское</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="no_gluten" {% if filters.no_gluten %}checked{% endif %}>
+                        <label class="form-check-label">Без глютена</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <div class="mb-3">
+                        <label class="form-label fw-bold">Тип блюда</label>
+                        <select class="form-control" name="dish_type">
+                          <option value="">Все типы</option>
+                          {% for value, label in dish_types %}
+                            <option value="{{ value }}" {% if filters.dish_type == value %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div>
+                        <label class="form-label fw-bold">Макс. стоимость (₽)</label>
+                        <input type="number" class="form-control" name="max_cost" step="0.01"
+                               value="{{ filters.max_cost|default_if_none:'' }}" placeholder="500">
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                      <div class="w-100">
+                        <button type="submit" class="btn btn-success w-100 mb-2 foodplan_green foodplan__border_green">
+                          Применить
+                        </button>
+                        <a href="{% url 'recipes:recipe_details_reset' %}" class="btn btn-outline-secondary w-100">
+                          Сбросить
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- КАРТОЧКИ — ВСТРОЕННЫЕ -->
+      <div class="row">
+
+        <!-- ЗАВТРАК -->
+        {% if show_breakfast and breakfast_recipe %}
+          <div class="col-12 col-md-4 meal-section">
+            <div class="card meal-card">
+              <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">Завтрак</h4>
+              </div>
+              <div class="card-img-container">
+                <img src="{{ breakfast_recipe.image.url|default:'/static/img/circle1.png' }}" alt="{{ breakfast_recipe.name }}" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ breakfast_recipe.name }}</h5>
+
+                <div class="mb-3">
+                  <h6><strong>Ингредиенты:</strong></h6>
+                  <ul class="list-group list-group-flush">
+                    {% for ing in breakfast_recipe.ingredients.all %}
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ ing.name }} ({{ ing.weight }}г)</span>
+                        <span class="text-success fw-bold">{{ ing.cost }}₽</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <div class="row mb-4">
+                  <div class="col-6">
+                    <h6 class="text-primary">Калорийность: <span class="fw-bold">{{ breakfast_recipe.calories }} ккал</span></h6>
+                  </div>
+                  <div class="col-6">
+                    <h6 class="text-success">Стоимость: <span class="fw-bold">{{ breakfast_recipe.total_cost }}₽</span></h6>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-6">
+                    <h6>Тип: {{ breakfast_recipe.get_dish_type_display }}</h6>
+                  </div>
+                  <div class="col-6">
+                    <h6>Вегетарианское: {% if breakfast_recipe.is_vegetarian %}Да{% else %}Нет{% endif %}</h6>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h6><strong>Как приготовить:</strong></h6>
+                  <div class="border p-3 rounded bg-light">
+                    {{ breakfast_recipe.instructions|linebreaks|default:"Инструкция отсутствует" }}
+                  </div>
+                </div>
+
+                {% if not can_refresh_breakfast %}
+                  <div class="alert alert-warning text-center mb-3">
+                    <strong>Лимит обновлений исчерпан</strong><br>
+                    <small>Вернитесь завтра!</small>
+                  </div>
+                {% endif %}
+
+                <div class="action-buttons">
+                  <form method="POST" action="{% url 'recipes:dislike_recipe' breakfast_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if breakfast_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
+                      Дизлайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:like_recipe' breakfast_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if breakfast_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
+                      Лайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:refresh_breakfast' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if not can_refresh_breakfast %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
+                            {% if not can_refresh_breakfast %}disabled{% endif %}>
+                      Обновить
+                      <small class="d-block">(осталось: {{ remaining_breakfast }}/3)</small>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
         {% endif %}
 
-       <!-- Фильтры -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body">
-                    <h5 class="card-title">🔍 Фильтры блюд</h5>
-                    {% if user.is_authenticated %}
-                      <form id="filter-form" method="POST"
-                            action="{% url 'recipes:apply_filters' %}">
-                        {% csrf_token %}
-                        <div class="row">
-                          <!-- Типы приемов пищи -->
-                          <div class="col-md-3 mb-3">
-                            <label class="form-label fw-bold">Тип приема пищи:</label>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="breakfast"
-                                     name="meal_types" value="breakfast"
-                                     {% if 'breakfast' in filters.meal_types %}checked{% endif %}>
-                              <label class="form-check-label" for="breakfast">
-                                🍳 Завтрак
-                              </label>
-                            </div>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="lunch"
-                                     name="meal_types" value="lunch"
-                                     {% if 'lunch' in filters.meal_types %}checked{% endif %}>
-                              <label class="form-check-label" for="lunch">
-                                🍲 Обед
-                              </label>
-                            </div>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="dinner"
-                                     name="meal_types" value="dinner"
-                                     {% if 'dinner' in filters.meal_types %}checked{% endif %}>
-                              <label class="form-check-label" for="dinner">
-                                🍽️ Ужин
-                              </label>
-                            </div>
-                          </div>
-
-                          <!-- Дополнительные фильтры -->
-                          <div class="col-md-3 mb-3">
-                            <label class="form-label fw-bold">Дополнительно:</label>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="low_calorie"
-                                     name="low_calorie" {% if filters.low_calorie %}checked{% endif %}>
-                              <label class="form-check-label" for="low_calorie">
-                                Низкокалорийное (<500 ккал)
-                              </label>
-                            </div>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="is_vegetarian"
-                                     name="is_vegetarian" {% if filters.is_vegetarian %}checked{% endif %}>
-                              <label class="form-check-label" for="is_vegetarian">
-                                Вегетарианское
-                              </label>
-                            </div>
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" id="no_gluten"
-                                     name="no_gluten" {% if filters.no_gluten %}checked{% endif %}>
-                              <label class="form-check-label" for="no_gluten">
-                                Без глютена
-                              </label>
-                            </div>
-                          </div>
-
-                          <!-- Фильтры по типу блюда и стоимости -->
-                          <div class="col-md-3 mb-3">
-                            <div class="form-group mb-3">
-                              <label for="dish_type" class="form-label fw-bold">Тип блюда</label>
-                              <select class="form-control" id="dish_type" name="dish_type">
-                                <option value="">Все типы</option>
-                                {% for value, label in dish_types %}
-                                  <option value="{{ value }}"
-                                          {% if filters.dish_type == value %}selected{% endif %}>
-                                    {{ label }}
-                                  </option>
-                                {% endfor %}
-                              </select>
-                            </div>
-                            <div class="form-group">
-                              <label for="max_cost" class="form-label fw-bold">Макс. стоимость (₽)</label>
-                              <input type="number" class="form-control" id="max_cost"
-                                     name="max_cost" step="0.01"
-                                     value="{{ filters.max_cost|default_if_none:'' }}"
-                                     placeholder="500">
-                            </div>
-                          </div>
-
-                          <!-- Кнопки -->
-                          <div class="col-md-3 mb-3 d-flex align-items-end">
-                            <div class="w-100">
-                              <button type="submit"
-                                      class="btn btn-success w-100 mb-2 foodplan_green foodplan__border_green">
-                                Применить фильтры
-                              </button>
-                              <a href="{% url 'recipes:recipe_details_reset' %}"
-                                 class="btn btn-outline-secondary w-100">
-                                Сбросить
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    {% else %}
-                      <div class="text-center py-3">
-                        <p>
-                          Чтобы использовать фильтры,
-                          <a href="{% url 'recipes:login' %}?next={% url 'recipes:recipe_details' %}">
-                            авторизуйтесь
-                          </a>.
-                        </p>
-                      </div>
-                    {% endif %}
-                  </div>
-                </div>
+        <!-- ОБЕД -->
+        {% if show_lunch and lunch_recipe %}
+          <div class="col-12 col-md-4 meal-section">
+            <div class="card meal-card">
+              <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Обед</h4>
               </div>
-            </div>
+              <div class="card-img-container">
+                <img src="{{ lunch_recipe.image.url|default:'/static/img/circle1.png' }}" alt="{{ lunch_recipe.name }}" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ lunch_recipe.name }}</h5>
 
-        <!-- Карточки с хуйней -->
-        <div class="row">
-             <!-- Завтрак -->
-            {% if show_breakfast or not filters.meal_types %}
-            <div class="col-12 col-md-4 meal-section">
-              <div class="card meal-card">
-                <div class="card-header bg-warning text-dark">
-                  <h4 class="mb-0">🍳 Завтрак</h4>
+                <div class="mb-3">
+                  <h6><strong>Ингредиенты:</strong></h6>
+                  <ul class="list-group list-group-flush">
+                    {% for ing in lunch_recipe.ingredients.all %}
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ ing.name }} ({{ ing.weight }}г)</span>
+                        <span class="text-success fw-bold">{{ ing.cost }}₽</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
                 </div>
-                {% if breakfast_recipe %}
-                <div class="card-img-container">
-                  <img src="{{ breakfast_recipe.image.url|default:'/static/img/circle1.png' }}"
-                       alt="{{ breakfast_recipe.name }}" class="card-img-top">
-                </div>
-                <div class="card-body">
-                  <h5 class="card-title">{{ breakfast_recipe.name }}</h5>
-                  <div class="mb-3">
-                    <h6><strong>Ингредиенты:</strong></h6>
-                    <ul class="list-group list-group-flush">
-                      {% for ingredient in breakfast_recipe.ingredients.all %}
-                        <li class="list-group-item d-flex justify-content-between">
-                          <span>{{ ingredient.name }} ({{ ingredient.weight }}г)</span>
-                          <span class="text-success fw-bold">{{ ingredient.cost }}₽</span>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div class="row mb-4">
-                    <div class="col-6">
-                      <h6 class="text-primary">Калорийность:
-                        <span class="fw-bold">{{ breakfast_recipe.calories }} ккал</span>
-                      </h6>
-                    </div>
-                    <div class="col-6">
-                      <h6 class="text-success">Стоимость:
-                        <span class="fw-bold">{{ breakfast_recipe.total_cost }}₽</span>
-                      </h6>
-                    </div>
-                  </div>
-                  <div class="row mb-3">
-                    <div class="col-6">
-                      <h6>Тип: {{ breakfast_recipe.get_dish_type_display }}</h6>
-                    </div>
-                    <div class="col-6">
-                      <h6>Вегетарианское:
-                        {% if breakfast_recipe.is_vegetarian %}✅ Да{% else %}❌ Нет{% endif %}
-                      </h6>
-                    </div>
-                  </div>
 
-                  {% if not can_refresh_breakfast %}
+                <div class="row mb-4">
+                  <div class="col-6">
+                    <h6 class="text-primary">Калорийность: <span class="fw-bold">{{ lunch_recipe.calories }} ккал</span></h6>
+                  </div>
+                  <div class="col-6">
+                    <h6 class="text-success">Стоимость: <span class="fw-bold">{{ lunch_recipe.total_cost }}₽</span></h6>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-6">
+                    <h6>Тип: {{ lunch_recipe.get_dish_type_display }}</h6>
+                  </div>
+                  <div class="col-6">
+                    <h6>Вегетарианское: {% if lunch_recipe.is_vegetarian %}Да{% else %}Нет{% endif %}</h6>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h6><strong>Как приготовить:</strong></h6>
+                  <div class="border p-3 rounded bg-light">
+                    {{ lunch_recipe.instructions|linebreaks|default:"Инструкция отсутствует" }}
+                  </div>
+                </div>
+
+                {% if not can_refresh_lunch %}
                   <div class="alert alert-warning text-center mb-3">
-                    <strong>⚠️ Лимит обновлений исчерпан</strong><br>
-                    <small>Ваши попытки на сегодня закончились. Вернитесь завтра!</small>
+                    <strong>Лимит обновлений исчерпан</strong><br>
+                    <small>Вернитесь завтра!</small>
                   </div>
-                  {% endif %}
-
-                  <div class="action-buttons">
-                    <form method="POST" action="{% url 'recipes:dislike_recipe' breakfast_recipe.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if breakfast_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
-                        👎 Дизлайк
-                      </button>
-                    </form>
-                    {% if user.is_authenticated %}
-                      <form method="POST" action="{% url 'recipes:like_recipe' breakfast_recipe.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn {% if breakfast_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
-                          👍 Лайк
-                        </button>
-                      </form>
-                    {% else %}
-                      <a href="{% url 'recipes:login' %}?next={% url 'recipes:recipe_details' %}"
-                         class="btn btn-outline-success btn-action">
-                        👍 Лайк
-                      </a>
-                    {% endif %}
-                    <form method="POST" action="{% url 'recipes:refresh_breakfast' %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if not can_refresh_breakfast %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
-                              {% if not can_refresh_breakfast %}disabled{% endif %}>
-                        🔄 Обновить
-                        {% if can_refresh_breakfast %}
-                        <small class="d-block">(осталось: {{ remaining_breakfast }}/3)</small>
-                        {% else %}
-                        <small class="d-block">(0/3)</small>
-                        {% endif %}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-                {% else %}
-                <div class="card-body text-center py-5">
-                  <h3>🍽️ Блюда не найдены</h3>
-                  <p class="text-muted">Попробуйте изменить фильтры</p>
-                </div>
                 {% endif %}
+
+                <div class="action-buttons">
+                  <form method="POST" action="{% url 'recipes:dislike_recipe' lunch_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if lunch_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
+                      Дизлайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:like_recipe' lunch_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if lunch_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
+                      Лайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:refresh_lunch' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if not can_refresh_lunch %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
+                            {% if not can_refresh_lunch %}disabled{% endif %}>
+                      Обновить
+                      <small class="d-block">(осталось: {{ remaining_lunch }}/3)</small>
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
-            {% endif %}
+          </div>
+        {% endif %}
 
-            <!-- Обед -->
-            {% if show_lunch or not filters.meal_types %}
-            <div class="col-12 col-md-4 meal-section">
-              <div class="card meal-card">
-                <div class="card-header bg-primary text-white">
-                  <h4 class="mb-0">🍲 Обед</h4>
-                </div>
-                {% if lunch_recipe %}
-                <div class="card-img-container">
-                  <img src="{{ lunch_recipe.image.url|default:'/static/img/circle1.png' }}"
-                       alt="{{ lunch_recipe.name }}" class="card-img-top">
-                </div>
-                <div class="card-body">
-                  <h5 class="card-title">{{ lunch_recipe.name }}</h5>
-                  <div class="mb-3">
-                    <h6><strong>Ингредиенты:</strong></h6>
-                    <ul class="list-group list-group-flush">
-                      {% for ingredient in lunch_recipe.ingredients.all %}
-                        <li class="list-group-item d-flex justify-content-between">
-                          <span>{{ ingredient.name }} ({{ ingredient.weight }}г)</span>
-                          <span class="text-success fw-bold">{{ ingredient.cost }}₽</span>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div class="row mb-4">
-                    <div class="col-6">
-                      <h6 class="text-primary">Калорийность:
-                        <span class="fw-bold">{{ lunch_recipe.calories }} ккал</span>
-                      </h6>
-                    </div>
-                    <div class="col-6">
-                      <h6 class="text-success">Стоимость:
-                        <span class="fw-bold">{{ lunch_recipe.total_cost }}₽</span>
-                      </h6>
-                    </div>
-                  </div>
-                  <div class="row mb-3">
-                    <div class="col-6">
-                      <h6>Тип: {{ lunch_recipe.get_dish_type_display }}</h6>
-                    </div>
-                    <div class="col-6">
-                      <h6>Вегетарианское:
-                        {% if lunch_recipe.is_vegetarian %}✅ Да{% else %}❌ Нет{% endif %}
-                      </h6>
-                    </div>
-                  </div>
+        <!-- УЖИН -->
+        {% if show_dinner and dinner_recipe %}
+          <div class="col-12 col-md-4 meal-section">
+            <div class="card meal-card">
+              <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Ужин</h4>
+              </div>
+              <div class="card-img-container">
+                <img src="{{ dinner_recipe.image.url|default:'/static/img/circle1.png' }}" alt="{{ dinner_recipe.name }}" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ dinner_recipe.name }}</h5>
 
-                  {% if not can_refresh_lunch %}
+                <div class="mb-3">
+                  <h6><strong>Ингредиенты:</strong></h6>
+                  <ul class="list-group list-group-flush">
+                    {% for ing in dinner_recipe.ingredients.all %}
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ ing.name }} ({{ ing.weight }}г)</span>
+                        <span class="text-success fw-bold">{{ ing.cost }}₽</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <div class="row mb-4">
+                  <div class="col-6">
+                    <h6 class="text-primary">Калорийность: <span class="fw-bold">{{ dinner_recipe.calories }} ккал</span></h6>
+                  </div>
+                  <div class="col-6">
+                    <h6 class="text-success">Стоимость: <span class="fw-bold">{{ dinner_recipe.total_cost }}₽</span></h6>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-6">
+                    <h6>Тип: {{ dinner_recipe.get_dish_type_display }}</h6>
+                  </div>
+                  <div class="col-6">
+                    <h6>Вегетарианское: {% if dinner_recipe.is_vegetarian %}Да{% else %}Нет{% endif %}</h6>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <h6><strong>Как приготовить:</strong></h6>
+                  <div class="border p-3 rounded bg-light">
+                    {{ dinner_recipe.instructions|linebreaks|default:"Инструкция отсутствует" }}
+                  </div>
+                </div>
+
+                {% if not can_refresh_dinner %}
                   <div class="alert alert-warning text-center mb-3">
-                    <strong>⚠️ Лимит обновлений исчерпан</strong><br>
-                    <small>Ваши попытки на сегодня закончились. Вернитесь завтра!</small>
+                    <strong>ЛимитТимит обновлений исчерпан</strong><br>
+                    <small>Вернитесь завтра!</small>
                   </div>
-                  {% endif %}
-
-                  <div class="action-buttons">
-                    <form method="POST" action="{% url 'recipes:dislike_recipe' lunch_recipe.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if lunch_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
-                        👎 Дизлайк
-                      </button>
-                    </form>
-                    {% if user.is_authenticated %}
-                      <form method="POST" action="{% url 'recipes:like_recipe' lunch_recipe.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn {% if lunch_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
-                          👍 Лайк
-                        </button>
-                      </form>
-                    {% else %}
-                      <a href="{% url 'recipes:login' %}?next={% url 'recipes:recipe_details' %}"
-                         class="btn btn-outline-success btn-action">
-                        👍 Лайк
-                      </a>
-                    {% endif %}
-                    <form method="POST" action="{% url 'recipes:refresh_lunch' %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if not can_refresh_lunch %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
-                              {% if not can_refresh_lunch %}disabled{% endif %}>
-                        🔄 Обновить
-                        {% if can_refresh_lunch %}
-                        <small class="d-block">(осталось: {{ remaining_lunch }}/3)</small>
-                        {% else %}
-                        <small class="d-block">(0/3)</small>
-                        {% endif %}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-                {% else %}
-                <div class="card-body text-center py-5">
-                  <h3>🍽️ Блюда не найдены</h3>
-                  <p class="text-muted">Попробуйте изменить фильтры</p>
-                </div>
                 {% endif %}
+
+                <div class="action-buttons">
+                  <form method="POST" action="{% url 'recipes:dislike_recipe' dinner_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if dinner_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
+                      Дизлайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:like_recipe' dinner_recipe.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if dinner_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
+                      Лайк
+                    </button>
+                  </form>
+                  <form method="POST" action="{% url 'recipes:refresh_dinner' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if not can_refresh_dinner %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
+                            {% if not can_refresh_dinner %}disabled{% endif %}>
+                      Обновить
+                      <small class="d-block">(осталось: {{ remaining_dinner }}/3)</small>
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
-            {% endif %}
+          </div>
+        {% endif %}
 
-            <!-- Ужин -->
-            {% if show_dinner or not filters.meal_types %}
-            <div class="col-12 col-md-4 meal-section">
-              <div class="card meal-card">
-                <div class="card-header bg-success text-white">
-                  <h4 class="mb-0">🍽️ Ужин</h4>
-                </div>
-                {% if dinner_recipe %}
-                <div class="card-img-container">
-                  <img src="{{ dinner_recipe.image.url|default:'/static/img/circle1.png' }}"
-                       alt="{{ dinner_recipe.name }}" class="card-img-top">
-                </div>
-                <div class="card-body">
-                  <h5 class="card-title">{{ dinner_recipe.name }}</h5>
-                  <div class="mb-3">
-                    <h6><strong>Ингредиенты:</strong></h6>
-                    <ul class="list-group list-group-flush">
-                      {% for ingredient in dinner_recipe.ingredients.all %}
-                        <li class="list-group-item d-flex justify-content-between">
-                          <span>{{ ingredient.name }} ({{ ingredient.weight }}г)</span>
-                          <span class="text-success fw-bold">{{ ingredient.cost }}₽</span>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div class="row mb-4">
-                    <div class="col-6">
-                      <h6 class="text-primary">Калорийность:
-                        <span class="fw-bold">{{ dinner_recipe.calories }} ккал</span>
-                      </h6>
-                    </div>
-                    <div class="col-6">
-                      <h6 class="text-success">Стоимость:
-                        <span class="fw-bold">{{ dinner_recipe.total_cost }}₽</span>
-                      </h6>
-                    </div>
-                  </div>
-                  <div class="row mb-3">
-                    <div class="col-6">
-                      <h6>Тип: {{ dinner_recipe.get_dish_type_display }}</h6>
-                    </div>
-                    <div class="col-6">
-                      <h6>Вегетарианское:
-                        {% if dinner_recipe.is_vegetarian %}✅ Да{% else %}❌ Нет{% endif %}
-                      </h6>
-                    </div>
-                  </div>
-
-                  {% if not can_refresh_dinner %}
-                  <div class="alert alert-warning text-center mb-3">
-                    <strong>⚠️ Лимит обновлений исчерпан</strong><br>
-                    <small>Ваши попытки на сегодня закончились. Вернитесь завтра!</small>
-                  </div>
-                  {% endif %}
-
-                  <div class="action-buttons">
-                    <form method="POST" action="{% url 'recipes:dislike_recipe' dinner_recipe.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if dinner_recipe.id in user_disliked_ids %}btn-danger{% else %}btn-outline-danger{% endif %} btn-action">
-                        👎 Дизлайк
-                      </button>
-                    </form>
-                    {% if user.is_authenticated %}
-                      <form method="POST" action="{% url 'recipes:like_recipe' dinner_recipe.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn {% if dinner_recipe.id in user_liked_ids %}btn-success{% else %}btn-outline-success{% endif %} btn-action">
-                          👍 Лайк
-                        </button>
-                      </form>
-                    {% else %}
-                      <a href="{% url 'recipes:login' %}?next={% url 'recipes:recipe_details' %}"
-                         class="btn btn-outline-success btn-action">
-                        👍 Лайк
-                      </a>
-                    {% endif %}
-                    <form method="POST" action="{% url 'recipes:refresh_dinner' %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn {% if not can_refresh_dinner %}btn-secondary disabled{% else %}btn-outline-primary{% endif %} btn-action"
-                              {% if not can_refresh_dinner %}disabled{% endif %}>
-                        🔄 Обновить
-                        {% if can_refresh_dinner %}
-                        <small class="d-block">(осталось: {{ remaining_dinner }}/3)</small>
-                        {% else %}
-                        <small class="d-block">(0/3)</small>
-                        {% endif %}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-                {% else %}
-                <div class="card-body text-center py-5">
-                  <h3>🍽️ Блюда не найдены</h3>
-                  <p class="text-muted">Попробуйте изменить фильтры</p>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-            {% endif %}
-        </div>
       </div>
-    </section>
+
+    </div>
   </main>
+
+  <!-- ФУТЕР -->
   <footer class="footer py-4 mt-5" style="border-top: 1px solid lightgray;">
     <div class="container d-flex flex-row justify-content-between mb-2">
       <a href="https://vk.com/devmanorg">
         <img src="{% static 'img/vk.png' %}" height="40" width="auto" alt="VK">
       </a>
       <div>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Виды меню</b>
-        </a>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Блог</b>
-        </a>
-        <a href="#" class="link-dark mx-1" style="text-decoration: none;">
-          <b>Контакты</b>
-        </a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Виды меню</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Блог</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Контакты</b></a>
       </div>
     </div>
     <div class="container">
@@ -526,8 +405,7 @@
       <h6 class="link-secondary text-center">© Devman 2022. All right reserved.</h6>
     </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-          crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

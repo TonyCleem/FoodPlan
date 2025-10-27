@@ -263,10 +263,12 @@
     </div>
     <div class="container">
       <h6 class="link-secondary text-center">
-        <a href="#" class="link-secondary me-2">Политика конфиденциальности</a>
-        <a href="#" class="link-secondary">Пользовательское соглашение</a>
+        <a href="{% static 'agreement.pdf' %}" class="link-secondary me-2" target="_blank">
+          Пользовательское соглашение
+        </a>
+        <a href="{% static 'politica-confidencialnosti.pdf' %}" class="link-secondary" target="_blank">
+          Политика конфиденциальности</a>
       </h6>
-      <h6 class="link-secondary text-center">© Devman 2022. All right reserved.</h6>
     </div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"

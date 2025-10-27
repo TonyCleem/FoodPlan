@@ -1,0 +1,83 @@
+<!-- recipes/templates/edit-profile.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Редактировать профиль – FoodPlan</title>
+</head>
+<body>
+  <!-- ХЕДЕР -->
+  <header>
+    <nav class="navbar navbar-light fixed-top navbar__opacity">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'recipes:index' %}">
+          <img src="{% static 'img/logo.8d8f24edbb5f.svg' %}" height="55" width="189" alt="FoodPlan">
+        </a>
+        <a href="{% url 'recipes:lk' %}" class="btn shadow-none btn-outline-success foodplan_green foodplan__border_green">
+          ← Назад
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main style="margin-top: calc(2rem + 85px);">
+    <div class="container py-5">
+      <h2 class="mb-4">Редактировать профиль</h2>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Фото -->
+        <div class="mb-4 text-center">
+          <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/avatar-placeholder.png' %}{% endif %}"
+               class="rounded-circle" width="120" height="120" style="object-fit: cover;" alt="Фото профиля">
+          <div class="mt-3">
+            <input type="file" name="avatar" class="form-control" accept="image/*">
+            <small class="text-muted">Загрузите новое фото</small>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Имя</label>
+          <input type="text" name="name" class="form-control" value="{{ user.first_name }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Аллергии (через запятую)</label>
+          <input type="text" name="allergies" class="form-control" value="{{ profile.allergies }}" placeholder="арахис, молоко, яйца">
+          <div class="form-text">Это повлияет на рекомендации блюд</div>
+        </div>
+
+        <button type="submit" class="btn btn-success foodplan_green foodplan__border_green">Сохранить</button>
+        <a href="{% url 'recipes:lk' %}" class="btn btn-outline-secondary">Отмена</a>
+      </form>
+    </div>
+  </main>
+
+  <!-- ФУТЕР -->
+  <footer class="footer py-4 mt-5" style="border-top: 1px solid lightgray;">
+    <div class="container d-flex flex-row justify-content-between mb-2">
+      <a href="https://vk.com/devmanorg">
+        <img src="{% static 'img/vk.png' %}" height="40" width="auto" alt="VK">
+      </a>
+      <div>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Виды меню</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Блог</b></a>
+        <a href="#" class="link-dark mx-1" style="text-decoration: none;"><b>Контакты</b></a>
+      </div>
+    </div>
+    <div class="container">
+      <h6 class="link-secondary text-center">
+        <a href="#" class="link-secondary me-2">Политика конфиденциальности</a>
+        <a href="#" class="link-secondary">Пользовательское соглашение</a>
+      </h6>
+      <h6 class="link-secondary text-center">© Devman 2022. All right reserved.</h6>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
